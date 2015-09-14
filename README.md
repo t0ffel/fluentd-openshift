@@ -1,1 +1,1 @@
-# fluentd-openshift
+# origin-aggregated-logging
