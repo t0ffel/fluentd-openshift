@@ -1,9 +1,0 @@
-sudo: required
-
-language: ruby
-
-services:
-  - docker
-
-script:
-  - cd hack && PREFIX="openshift/origin-" ./build-images.sh
