@@ -25,3 +25,37 @@ Fluentd collector that is responsible for collection of logs from Kubernetes/ Op
 ### Deployer
 
 Template and Ansible playbook to deploy all of the above.
+
+# Modifying configs
+
+To modify config - change the config files in the directory and re-run ansible
+playbook.
+
+# Container image
+
+Built container image is usually available as `t0ffel/logging-fluentd`.
+Container image _does not_ contain any fluentd configuration files.
+All configuration files must be passed in as ConfigMap resources.
+
+## Configmaps
+`fluntd-entrypoint-cm` configMap consists of just one file - the entrypoint
+`entrypoint/fluent.conf`.
+`journal-dir` configMap consists of the files in the directory `journal/`.
+`input-dir` configMap consists of the files in the directory `input/`
+
+# Fluentd config structure
+
+## Directories
+
+`input` is a special directory that contains all `<source>` sections.
+
+Other directories correspond to the names of Fluentd labels.
+
+## Flow
+
+Input sources must have labels.
+Structurally different sources must have different labels.
+The entry point will include `base.conf` file from the respective label
+directory.
+The respective `base.conf` file includes the real config files - filters and
+matches from the same directory.

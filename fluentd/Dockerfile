@@ -1,6 +1,6 @@
 FROM centos:centos7
 
-MAINTAINER OpenShift Development <dev@lists.openshift.redhat.com>
+MAINTAINER Anton Sherkhonov <antons@redhat.com>
 
 ENV HOME=/opt/app-root/src \
   PATH=/opt/app-root/src/bin:/opt/app-root/bin:$PATH \
@@ -10,8 +10,7 @@ ENV HOME=/opt/app-root/src \
 
 LABEL io.k8s.description="Fluentd container for collecting of docker container logs" \
   io.k8s.display-name="Fluentd ${FLUENTD_VERSION}" \
-  io.openshift.expose-services="9200:http, 9300:http" \
-  io.openshift.tags="logging,elk,fluentd"
+  io.openshift.tags="logging,fluentd"
 
 # activesupport version 5.x requires ruby 2.2
 RUN rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
@@ -20,7 +19,8 @@ RUN rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
       ruby \
       ruby-devel \
       libcurl-devel \
-      make && \
+      make \
+      iproute && \
     yum clean all
 RUN mkdir -p ${HOME} && \
     gem install --no-rdoc --no-ri \
@@ -34,12 +34,9 @@ RUN mkdir -p ${HOME} && \
       systemd-journal \
       fluent-plugin-rewrite-tag-filter
 
-ADD configs.d/ /etc/fluent/configs.d/
-ADD run.sh generate_throttle_configs.rb ${HOME}/
+ADD run.sh ${HOME}/
 
-RUN mkdir -p /etc/fluent/configs.d/{dynamic,user} && \
-    chmod 777 /etc/fluent/configs.d/dynamic && \
-    ln -s /etc/fluent/configs.d/user/fluent.conf /etc/fluent/fluent.conf
+RUN mkdir -p /etc/fluent/configs.d/
 
 WORKDIR ${HOME}
 USER 0

@@ -1,0 +1,46 @@
+apiVersion: "v1"
+kind: "List"
+items:
+-
+  apiVersion: "v1"
+  kind: "Template"
+  metadata:
+    name: fluentd-roles-template
+    labels:
+      logging-infra: fluentd
+    annotations:
+      description: "Template for creating the deployer account and roles needed for the aggregated logging deployer. Create as cluster-admin."
+      tags: "infrastructure"
+  objects:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: aggregated-logging-fluentd
+      labels:
+        logging-infra: fluentd
+  - apiVersion: v1
+    kind: ClusterRole
+    metadata:
+      name: daemonset-admin
+    rules:
+    - resources:
+      - daemonsets
+      apiGroups:
+      - extensions
+      verbs:
+      - create
+      - get
+      - list
+      - watch
+      - delete
+      - update
+#  - apiVersion: v1
+#    kind: RoleBinding
+#    metadata:
+#      name: aggregated-fluentd-binding
+#    roleRef:
+#      kind: ClusterRole
+#      name: daemonset-admin
+#    subjects:
+#    - kind: ServiceAccount
+#      name: aggregated-logging-fluentd

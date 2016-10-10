@@ -1,0 +1,30 @@
+- name: "Go to logging project"
+  command: oc project {{ logging_project }}
+
+- name: "Remove labeling from the nodes"
+  shell:  "oc label node --overwrite=true --all logging-infra-"
+
+- name: "Remove old pods"
+  shell: "oc delete pod -l component=fluentd --grace-period=0"
+
+- name: delete items
+  shell: "oc delete configmap --all || true"
+
+- name: "Copy fluent configs to the remote"
+  copy: src={{ item }} dest=/tmp/
+  with_items:
+  - entrypoint
+  - input
+  - catchall
+  - journal
+
+- name: "Create fluend config configMaps"
+  command: "oc create configmap fluent-{{ item }}-cm --from-file=/tmp/{{ item }}"
+  with_items:
+  - entrypoint
+  - input
+  - catchall
+  - journal
+
+- name: "Deploy fluentd by labeling the node"
+  shell:  "oc label node --overwrite=true --all logging-infra=fluentd"

@@ -1,0 +1,8 @@
+---
+- name: Cleanup logging deployment
+  include: "{{ role_path }}/tasks/cleanup_logging.yaml"
+  when: not logging_deploy | default(false) | bool
+
+- name: Deploy logging
+  include: "{{ role_path }}/tasks/deploy_logging.yaml"
+  when: logging_deploy | default(false) | bool

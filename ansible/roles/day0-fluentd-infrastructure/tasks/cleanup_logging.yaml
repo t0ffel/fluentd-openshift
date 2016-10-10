@@ -1,0 +1,27 @@
+---
+- name: "Got to logging project"
+  shell: oc project {{ logging_project }}
+
+- name: delete items
+  shell: "oc delete {{ item }} || true"
+  with_items:
+  - ds logging-fluentd
+  - templates fluentd-roles-template
+  - sa aggregated-logging-fluentd
+  - clusterrole daemonset-admin
+  - rolebinding aggregated-fluentd-binding
+  - configmap --all
+  - templates fluentd-daemonset-template
+
+- name: "Delete tmp files from remote"
+  file: path=/tmp/{{ item }} state=absent
+  with_items:
+  - entrypoint
+  - input
+  - catchall
+  - journal
+  - fluentd-daemonset.yaml
+  - roles-setup.yaml
+
+- name: unlabel
+  shell:  "oc label node --overwrite=true --all logging-infra-"

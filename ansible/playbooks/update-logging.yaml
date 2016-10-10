@@ -1,0 +1,7 @@
+---
+- name: Deploy logging
+  hosts: nodes
+  roles:
+  - day1-fluentd-reconfigure
+  vars_files:
+  - ../vars/openshift.yaml

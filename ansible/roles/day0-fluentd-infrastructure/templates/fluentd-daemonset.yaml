@@ -1,0 +1,140 @@
+apiVersion: "v1"
+kind: "List"
+items:
+-
+  apiVersion: "v1"
+  kind: "Template"
+  metadata:
+    name: fluentd-daemonset-template
+    labels:
+      logging-infra: fluentd
+    annotations:
+      description: "Template for creating the deployer account and roles needed for the aggregated logging deployer. Create as cluster-admin."
+      tags: "infrastructure"
+  objects:
+
+  - apiVersion: extensions/v1beta1
+    kind: "DaemonSet"
+    metadata:
+      name: "logging-fluentd"
+      labels:
+        provider: openshift
+        logging-infra: fluentd
+    spec:
+      selector:
+        matchLabels:
+          component: "fluentd"
+      nodeSelector:
+        logging-infra: fluentd
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          minReadySeconds: 600
+      template:
+        metadata:
+          name: fluentd-nodecollector
+          labels:
+            provider: openshift
+            component: "fluentd"
+        spec:
+          terminationGracePeriodSeconds: 300
+          serviceAccountName: aggregated-logging-fluentd
+          nodeSelector:
+            logging-infra: fluentd
+          containers:
+          - name: fluentd-collector
+            image: ${IMAGE_PREFIX}logging-fluentd:${IMAGE_VERSION}
+            imagePullPolicy: Always
+            securityContext:
+              privileged: true
+            resources:
+              limits:
+                cpu: 100m
+            volumeMounts:
+            - name: runlogjournal
+              mountPath: /run/log/journal
+            - name: varlog
+              mountPath: /var/log
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: dockerhostname
+              mountPath: /etc/docker-hostname
+              readOnly: true
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            - name: dockercfg
+              mountPath: /etc/sysconfig/docker
+              readOnly: true
+            - name: fluent-entrypoint
+              mountPath: /etc/fluent/entrypoint
+              readOnly: true
+            - name: fluent-input
+              mountPath: /etc/fluent/input
+              readOnly: true
+            - name: fluent-journal
+              mountPath: /etc/fluent/journal
+              readOnly: true
+            - name: fluent-catchall
+              mountPath: /etc/fluent/catchall
+              readOnly: true
+            env:
+            - name: "K8S_HOST_URL"
+              value: ${MASTER_URL}
+            - name: "FLUENTD_NORMALIZER"
+              value: ${FLUENTD_NORMALIZER}
+            - name: "FLUENTD_NORMALIZER_PORT"
+              value: ${FLUENTD_NORMALIZER_PORT}
+          volumes:
+          - name: runlogjournal
+            hostPath:
+              path: /run/log/journal
+          - name: varlog
+            hostPath:
+              path: /var/log
+          - name: varlibdockercontainers
+            hostPath:
+              path: /var/lib/docker/containers
+          - name: dockerhostname
+            hostPath:
+              path: /etc/hostname
+          - name: localtime
+            hostPath:
+              path: /etc/localtime
+          - name: dockercfg
+            hostPath:
+              path: /etc/sysconfig/docker
+          - name: fluent-entrypoint
+            configMap:
+              name: fluent-entrypoint-cm
+          - name: fluent-input
+            configMap:
+              name: fluent-input-cm
+          - name: fluent-journal
+            configMap:
+              name: fluent-journal-cm
+          - name: fluent-catchall
+            configMap:
+              name: fluent-catchall-cm
+  parameters:
+  -
+    description: "Internal url for reaching the master API to query pod labels"
+    name: MASTER_URL
+    value: "https://kubernetes.default.svc.cluster.local"
+  -
+    description: "Hostname (or IP) for reaching fluentd normalizer to write logs"
+    name: FLUENTD_NORMALIZER
+    value: "logging-es"
+  -
+    description: "Port number for reaching fluentd normalizer to write cluster logs"
+    name: FLUENTD_NORMALIZER_PORT
+    value: "9200"
+  -
+    description: "The prefix of the image to use."
+    name: IMAGE_PREFIX
+    value: "atomic-registry.usersys.redhat.com:5000/t0ffel/"
+  -
+    description: "The version tag of the image to use."
+    name: IMAGE_VERSION
+    value: latest
