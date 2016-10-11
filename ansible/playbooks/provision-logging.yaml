@@ -3,7 +3,7 @@
   hosts: nodes
   roles:
   - day0-fluentd-infrastructure
-  - role: day1-fluentd-reconfigure
+  - role: day1-fluentd-node-collector-reconfigure
     when: logging_deploy
   vars_files:
   - ../vars/openshift.yaml
