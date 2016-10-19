@@ -1,7 +1,20 @@
-# Fluentd Collector reconfiguration role
+# Fluentd Node Collector role
 
-The role is responsible for configuration and re-configuration of fluentd node
+The role is responsible for deployment and re-configuration of fluentd node
 collectors.
+
+## Usage
+
+### Deploy Fluentd node collector
+
+To deploy fluentd node collector - simply execute the role.
+In case logging-fluentd DaemonSet is already deployed and has `>0` pods running,
+the role will only reconfigure the node collector.
+
+### Uninstall Fluentd node collector
+
+To uninstall fluentd node collector - execute the role, passing variable
+`logging_deploy=false`.
 
 ## Modifying configs
 
