@@ -1,0 +1,11 @@
+- name: "Go to logging project"
+  command: oc project {{ logging_project }}
+
+- name: "Check if the logging-fluentd DaemonSet is deployed"
+  shell:  "oc get ds logging-fluentd"
+  register: fluentd_ds_deployed
+  failed_when: false
+
+- set_fact:
+    infra_not_deployed: true
+  when: '"Error" in ''{{ fluentd_ds_deployed.stderr }}'''
