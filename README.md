@@ -4,7 +4,20 @@ This repo is a variant of [Origin Aggregated Logging](https://github.com/openshi
 It contains the image definitions of the components of the light-weight logging
 stack as well as tools for building and deploying them.
 
-The assumption is that we're using external ElasticSearch and visualization tools.
+Tested on OpenShift 3.2. I believe it should work on pure kubernetes as well
+although I didn't try.
+
+## Goals
+The focus is to
+* Deploy and re-configure fluentd easily
+* View Fluentd configuration files the same way fluentd sees them.
+* Update fluentd configuration without complete uninstall.
+
+### Current configuration assumptions
+Here are some assumption, obviously feel free to re-configure fluentd the way
+you want it to behave.
+* The assumption is that we're using external ElasticSearch and visualization tools.
+* Another assumption is that we're using journald logging driver in docker
 
 ## Components
 
