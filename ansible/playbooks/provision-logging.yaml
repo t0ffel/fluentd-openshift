@@ -3,5 +3,3 @@
   hosts: nodes
   roles:
   - fluentd-node-collector
-  vars_files:
-  - ../vars/openshift.yaml

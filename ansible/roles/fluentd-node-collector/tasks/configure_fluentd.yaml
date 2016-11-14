@@ -3,27 +3,15 @@
 
 - name: delete old configmaps
   shell: "oc delete configmap fluent-{{ item }}-cm|| true"
-  with_items:
-  - entrypoint
-  - input
-  - catchall
-  - journal
+  with_items: '{{ config_list.stdout_lines }}'
 
 - name: "Copy fluent configs to the remote"
-  copy: src={{ item }} dest=/tmp/
-  with_items:
-  - entrypoint
-  - input
-  - catchall
-  - journal
+  copy: 'src="{{ config_path }}/{{ item }}" dest=/tmp/'
+  with_items: '{{ config_list.stdout_lines }}'
 
 - name: "Create fluend config configMaps"
   command: "oc create configmap fluent-{{ item }}-cm --from-file=/tmp/{{ item }}"
-  with_items:
-  - entrypoint
-  - input
-  - catchall
-  - journal
+  with_items: '{{ config_list.stdout_lines }}'
 
 - name: "Remove labeling from the nodes"
   shell:  "oc label node --overwrite=true --all logging-infra-"

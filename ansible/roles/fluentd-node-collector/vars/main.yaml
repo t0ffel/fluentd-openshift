@@ -1,5 +1,6 @@
 ---
-ansible_ssh_user: root
+#ansible_ssh_user: cloud-user
 # Logging properties
 logging_project: logging
 fluentd_nodeselector_label: logging-infra=fluentd
+config_path: "{{ inventory_dir }}/../configs/node-collector"
