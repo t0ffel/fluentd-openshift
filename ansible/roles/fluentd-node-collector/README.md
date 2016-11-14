@@ -11,6 +11,12 @@ To deploy fluentd node collector - simply execute the role.
 In case logging-fluentd DaemonSet is already deployed and has `>0` pods running,
 the role will only reconfigure the node collector.
 
+#### Change Fluentd image
+
+To change image used in fluentd - please modify the value of variable
+`IMAGE_PREFIX` in [fluentd-daemonset.yaml](templates/fluentd-daemonset.yaml) to
+point to your Docker registry/project in your registry.
+
 ### Uninstall Fluentd node collector
 
 To uninstall fluentd node collector - execute the role, passing variable
@@ -18,10 +24,13 @@ To uninstall fluentd node collector - execute the role, passing variable
 
 ## Modifying configs
 
-To modify config - change the config files in the [files](files) directory and
-run the role.
+To modify config - change the config files in the
+[node-collector](../../configs/node-collector)directory and run the role.
 
-## Configmaps
+Alternatively you can pass `config_path` variable to the role. This variable
+must contain the full path to the configs which will be converted to configmaps.
+
+## Configmaps (particular case)
 `fluntd-entrypoint-cm` configMap consists of just one file - the entrypoint
 `entrypoint/fluent.conf`.
 `journal-dir` configMap consists of the files in the directory `journal/`.

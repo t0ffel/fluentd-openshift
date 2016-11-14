@@ -1,4 +1,9 @@
 ---
+- name: Get the list of configuration files
+  local_action: 'command ls {{ config_path }}'
+  register: config_list
+  changed_when: false
+
 - name: Cleanup logging deployment
   include: "{{ role_path }}/tasks/cleanup_logging.yaml"
   when: not logging_deploy | default(true) | bool

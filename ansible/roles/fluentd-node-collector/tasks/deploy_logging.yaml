@@ -20,11 +20,6 @@
 - name: "Process roles template and create objects"
   shell: "oc process fluentd-roles-template | oc create -f - "
 
-- name: "Import fluentd image as imagestream"
-  shell: >
-    oc import-image logging-fluentd --from=docker.io/t0ffel/logging-fluentd
-    --all --confirm
-
 - name: "Add service account to the daemonset admin role"
   shell: "oc adm policy add-role-to-user daemonset-admin system:serviceaccount:{{ logging_project }}:aggregated-logging-fluentd"
 
