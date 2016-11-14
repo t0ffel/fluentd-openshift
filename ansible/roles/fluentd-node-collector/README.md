@@ -18,8 +18,11 @@ To uninstall fluentd node collector - execute the role, passing variable
 
 ## Modifying configs
 
-To modify config - change the config files in the [files](files) directory and
-run the role.
+To modify config - change the config files in the
+[node-collector](../../configs/node-collector)directory and run the role.
+
+Alternatively you can pass `config_path` variable to the role. This variable
+must contain the full path to the configs which will be converted to configmaps.
 
 ## Configmaps
 `fluntd-entrypoint-cm` configMap consists of just one file - the entrypoint
