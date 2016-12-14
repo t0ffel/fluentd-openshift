@@ -1,0 +1,38 @@
+- name: "check for existence of logging project"
+  shell: oc get project {{ logging_project }} || true
+  register: project_exists
+
+- name: "Create logging project"
+  command: oc new-project {{ logging_project }}
+  when: "'Error' in project_exists.stderr"
+
+- name: "Go to logging project"
+  command: oc project {{ logging_project }}
+
+- name: "Copy roles setup template to the remote"
+  template: src=roles-setup.yaml dest=/tmp/roles-setup.yaml
+
+- name: "Create the roles setup template"
+  shell: oc create -f /tmp/roles-setup.yaml
+  register: template1_output
+  failed_when: "template1_output.rc == 1 and 'exists' not in template1_output.stderr"
+
+- name: "Process roles template and create objects"
+  shell: "oc process fluentd-roles-template | oc create -f - "
+
+- name: "Copy fluentd daemonset template to the remote"
+  template: src=fluentd-dc.yaml dest=/tmp/fluentd-dc.yaml
+
+- name: "Create fluentd daemonset template"
+  shell: oc create -f /tmp/fluentd-dc.yaml
+  register: template2_output
+  failed_when: "template2_output.rc == 1 and 'exists' not in template2_output.stderr"
+
+- name: "Process fluentd daemonset template and create objects"
+  shell: "oc process fluentd-dc-template | oc create -f - "
+
+- name: "Set additional permissions for fluentd"
+  command: >
+    oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:{{ logging_project }}:aggregated-logging-fluentd
+  register: fluentd2_output
+  failed_when: "fluentd2_output.rc == 1 and 'exists' not in fluentd2_output.stderr"

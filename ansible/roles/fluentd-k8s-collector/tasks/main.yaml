@@ -1,0 +1,23 @@
+---
+- name: Get the list of configuration files
+  local_action: 'command ls {{ config_path }}'
+  register: config_list
+  changed_when: false
+
+- name: Cleanup logging deployment
+  include: "{{ role_path }}/tasks/cleanup_logging.yaml"
+  when: not logging_deploy | default(true) | bool
+
+- name: Check if fluentd is already deployed
+  include: "{{ role_path }}/tasks/check_fluentd_deployed.yaml"
+  when: logging_deploy | default(true) | bool
+
+- name: Deploy logging resources
+  include: "{{ role_path }}/tasks/deploy_logging.yaml"
+  when:
+  - logging_deploy| default(true)
+  - infra_not_deployed | default(false)
+
+- name: Configure Fluentd
+  include: "{{ role_path }}/tasks/configure_fluentd.yaml"
+  when: logging_deploy | default(true) | bool

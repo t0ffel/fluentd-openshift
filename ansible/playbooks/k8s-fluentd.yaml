@@ -1,0 +1,5 @@
+---
+- name: Deploy logging
+  hosts: nodes
+  roles:
+  - fluentd-k8s-collector

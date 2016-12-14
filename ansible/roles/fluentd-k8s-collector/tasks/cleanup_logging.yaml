@@ -1,0 +1,26 @@
+---
+- name: "Go to logging project"
+  shell: oc project {{ logging_project }}
+
+- name: delete k8s resources
+  shell: "oc delete {{ item }} || true"
+  with_items:
+  - dc k8s-fluentd
+  - templates fluentd-roles-template
+  - sa aggregated-logging-fluentd
+  - rolebinding aggregated-fluentd-binding
+  - templates fluentd-dc-template
+
+- name: "Delete tmp files from remote"
+  file: path=/tmp/{{ item }} state=absent
+  with_items:
+  - fluentd-dc.yaml
+  - roles-setup.yaml
+
+- name: delete configmaps
+  shell: "oc delete configmap fluent-{{ item }}-cm|| true"
+  with_items: '{{ config_list.stdout_lines }}'
+
+- name: "Delete config files from remote"
+  file: path=/tmp/{{ item }} state=absent
+  with_items: '{{ config_list.stdout_lines }}'
