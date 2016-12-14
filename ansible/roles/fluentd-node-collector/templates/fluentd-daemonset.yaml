@@ -43,7 +43,7 @@ items:
             logging-infra: fluentd
           containers:
           - name: fluentd-collector
-            image: ${IMAGE_PREFIX}logging-fluentd:${IMAGE_VERSION}
+            image: ${IMAGE_PREFIX}fluentd-logging:${IMAGE_VERSION}
             imagePullPolicy: Always
             securityContext:
               privileged: true
@@ -82,10 +82,6 @@ items:
             env:
             - name: "K8S_HOST_URL"
               value: ${MASTER_URL}
-            - name: "FLUENTD_NORMALIZER"
-              value: ${FLUENTD_NORMALIZER}
-            - name: "FLUENTD_NORMALIZER_PORT"
-              value: ${FLUENTD_NORMALIZER_PORT}
           volumes:
           - name: runlogjournal
             hostPath:
@@ -123,17 +119,9 @@ items:
     name: MASTER_URL
     value: "https://kubernetes.default.svc.cluster.local"
   -
-    description: "Hostname (or IP) for reaching fluentd normalizer to write logs"
-    name: FLUENTD_NORMALIZER
-    value: "logging-es"
-  -
-    description: "Port number for reaching fluentd normalizer to write cluster logs"
-    name: FLUENTD_NORMALIZER_PORT
-    value: "9200"
-  -
     description: "The prefix of the image to use."
     name: IMAGE_PREFIX
-    value: "atomic-registry.usersys.redhat.com:5000/t0ffel/"
+    value: "docker.io/t0ffel/"
   -
     description: "The version tag of the image to use."
     name: IMAGE_VERSION

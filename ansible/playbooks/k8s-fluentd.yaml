@@ -2,4 +2,4 @@
 - name: Deploy logging
   hosts: nodes
   roles:
-  - fluentd-node-collector
+  - fluentd-k8s-collector

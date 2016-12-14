@@ -5,17 +5,16 @@
 - name: delete k8s resources
   shell: "oc delete {{ item }} || true"
   with_items:
-  - ds logging-fluentd
+  - dc k8s-fluentd
   - templates fluentd-roles-template
   - sa aggregated-logging-fluentd
-  - clusterrole daemonset-admin
   - rolebinding aggregated-fluentd-binding
-  - templates fluentd-daemonset-template
+  - templates fluentd-dc-template
 
 - name: "Delete tmp files from remote"
   file: path=/tmp/{{ item }} state=absent
   with_items:
-  - fluentd-daemonset.yaml
+  - fluentd-dc.yaml
   - roles-setup.yaml
 
 - name: delete configmaps
@@ -25,6 +24,3 @@
 - name: "Delete config files from remote"
   file: path=/tmp/{{ item }} state=absent
   with_items: '{{ config_list.stdout_lines }}'
-
-- name: unlabel
-  shell:  "oc label node --overwrite=true --all logging-infra-"

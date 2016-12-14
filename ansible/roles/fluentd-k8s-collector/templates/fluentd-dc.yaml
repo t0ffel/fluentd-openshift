@@ -1,0 +1,92 @@
+apiVersion: "v1"
+kind: "List"
+items:
+-
+  apiVersion: "v1"
+  kind: "Template"
+  metadata:
+    name: fluentd-dc-template
+    labels:
+      logging-infra: fluentd
+    annotations:
+      description: "Template for creating the deployer account and roles needed for the aggregated logging deployer. Create as cluster-admin."
+      tags: "infrastructure"
+  objects:
+
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      creationTimestamp: null
+      name: k8s-fluentd
+    spec:
+      replicas: 1
+      strategy:
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            component: k8s-fluentd
+            provider: openshift
+          name: fluentd-elasticsearch
+        spec:
+          containers:
+          - env:
+            - name: K8S_HOST_URL
+              value: https://kubernetes.default.svc.cluster.local
+            image: ${IMAGE_PREFIX}fluentd-logging:${IMAGE_VERSION}
+            imagePullPolicy: Always
+            name: fluentd-elasticsearch
+            resources:
+              limits:
+                cpu: 100m
+            terminationMessagePath: /dev/termination-log
+            volumeMounts:
+            - name: fluent-entrypoint
+              mountPath: /etc/fluent/entrypoint
+              readOnly: true
+            - name: fluent-input
+              mountPath: /etc/fluent/input
+              readOnly: true
+            - name: fluent-catchall
+              mountPath: /etc/fluent/catchall
+              readOnly: true
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          securityContext: {}
+          serviceAccount: aggregated-logging-fluentd
+          serviceAccountName: aggregated-logging-fluentd
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: fluent-entrypoint
+            configMap:
+              name: fluent-entrypoint-cm
+          - name: fluent-input
+            configMap:
+              name: fluent-input-cm
+          - name: fluent-catchall
+            configMap:
+              name: fluent-catchall-cm
+      triggers:
+      - type: ConfigChange
+    status: {}
+  parameters:
+  -
+    description: "Internal url for reaching the master API to query pod labels"
+    name: MASTER_URL
+    value: "https://kubernetes.default.svc.cluster.local"
+  -
+    description: "The prefix of the image to use."
+    name: IMAGE_PREFIX
+    value: "docker.io/t0ffel/"
+  -
+    description: "The version tag of the image to use."
+    name: IMAGE_VERSION
+    value: latest

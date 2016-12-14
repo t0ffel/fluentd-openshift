@@ -20,25 +20,16 @@
 - name: "Process roles template and create objects"
   shell: "oc process fluentd-roles-template | oc create -f - "
 
-- name: "Add service account to the daemonset admin role"
-  shell: "oc adm policy add-role-to-user daemonset-admin system:serviceaccount:{{ logging_project }}:aggregated-logging-fluentd"
-
 - name: "Copy fluentd daemonset template to the remote"
-  template: src=fluentd-daemonset.yaml dest=/tmp/fluentd-daemonset.yaml
+  template: src=fluentd-dc.yaml dest=/tmp/fluentd-dc.yaml
 
 - name: "Create fluentd daemonset template"
-  shell: oc create -f /tmp/fluentd-daemonset.yaml
+  shell: oc create -f /tmp/fluentd-dc.yaml
   register: template2_output
   failed_when: "template2_output.rc == 1 and 'exists' not in template2_output.stderr"
 
 - name: "Process fluentd daemonset template and create objects"
-  shell: "oc process fluentd-daemonset-template | oc create -f - "
-
-- name: "Set permissions for fluentd"
-  command: >
-    oc adm policy add-scc-to-user privileged system:serviceaccount:{{ logging_project }}:aggregated-logging-fluentd
-  register: fluentd_output
-  failed_when: "fluentd_output.rc == 1 and 'exists' not in fluentd_output.stderr"
+  shell: "oc process fluentd-dc-template | oc create -f - "
 
 - name: "Set additional permissions for fluentd"
   command: >

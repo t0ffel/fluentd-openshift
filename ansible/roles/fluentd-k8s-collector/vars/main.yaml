@@ -1,0 +1,4 @@
+---
+# Logging properties
+logging_project: logging-k8s
+config_path: "{{ inventory_dir }}/../configs/k8s-collector"

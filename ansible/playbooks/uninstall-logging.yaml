@@ -1,0 +1,6 @@
+---
+- name: Deploy logging
+  hosts: nodes
+  roles:
+  - role: fluentd-node-collector
+    logging_deploy: false

@@ -1,8 +1,5 @@
-- name: "Go to logging project"
-  command: oc project {{ logging_project }}
-
 - name: "Check if the logging-fluentd DaemonSet is deployed"
-  shell:  "oc get ds logging-fluentd"
+  shell:  "oc get ds logging-fluentd -n {{ logging_project }}"
   register: fluentd_ds_deployed
   failed_when: false
 

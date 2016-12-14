@@ -1,0 +1,8 @@
+- name: "Check if the logging-fluentd DaemonSet is deployed"
+  shell:  "oc get dc k8s-fluentd -n {{ logging_project }}"
+  register: fluentd_dc_deployed
+  failed_when: false
+
+- set_fact:
+    infra_not_deployed: true
+  when: '"Error" in ''{{ fluentd_dc_deployed.stderr }}'''
