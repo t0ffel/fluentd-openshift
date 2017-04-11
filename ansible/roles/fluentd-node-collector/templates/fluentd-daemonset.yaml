@@ -53,11 +53,8 @@ items:
             volumeMounts:
             - name: runlogjournal
               mountPath: /run/log/journal
-            - name: varlog
-              mountPath: /var/log
-            - name: varlibdockercontainers
-              mountPath: /var/lib/docker/containers
-              readOnly: true
+            - name: varlogjournal
+              mountPath: /var/log/journal
             - name: dockerhostname
               mountPath: /etc/docker-hostname
               readOnly: true
@@ -86,12 +83,9 @@ items:
           - name: runlogjournal
             hostPath:
               path: /run/log/journal
-          - name: varlog
+          - name: varlogjournal
             hostPath:
-              path: /var/log
-          - name: varlibdockercontainers
-            hostPath:
-              path: /var/lib/docker/containers
+              path: /var/log/journal
           - name: dockerhostname
             hostPath:
               path: /etc/hostname
