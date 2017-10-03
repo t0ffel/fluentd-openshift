@@ -1,0 +1,15 @@
+---
+- name: Cleanup Fluentd deployment
+  include: "{{ role_path }}/tasks/cleanup_resources.yaml"
+  when: not fluentd_deploy | default(true) | bool
+
+- name: Go to Fluentd project
+  command: oc project {{ fluentd_project }}
+  when: fluentd_deploy| default(true) | bool
+
+- name: "Deploy Fluentd"
+  include: "{{ role_path }}/tasks/deploy_resources.yaml"
+  when: fluentd_deploy| default(true) | bool
+
+
+

@@ -1,0 +1,25 @@
+---
+# This file is for creating individual configmap from individual subdirectory
+
+- name: Create directory to hold the
+  file:
+    path: '{{ tempdir }}/fluent.conf.d/{{ cm_name }}'
+    state: directory
+
+- name: "Copy Fluentd client configs to the remote for subdir '{{ cm_name }}'"
+  template:
+    src: '{{ item }}'
+    dest: '{{ tempdir }}/fluent.conf.d/{{ cm_name }}/'
+  with_fileglob:
+  - "{{ configs_dir }}/{{ cm_name }}/*"
+  changed_when: no
+
+- name: Set Fluentd client configmaps
+  oc_configmap:
+    state: present
+    name: "{{ fluentd_name }}-{{ cm_name }}-fluent-conf"
+    namespace: "{{ fluentd_project }}"
+    kubeconfig: '{{ kubeconfig }}'
+    from_dir: '{{ tempdir }}/fluent.conf.d/{{ cm_name }}'
+
+

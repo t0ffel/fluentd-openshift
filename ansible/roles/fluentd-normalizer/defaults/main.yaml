@@ -1,0 +1,9 @@
+debug: ""
+fluentd_image: t0ffel/fluentd-zmq
+fluentd_project: test-anton
+fluentd_name: fluentd-zmq
+
+configs_dir: "{{ inventory_dir }}/../logstash-configs/"
+
+kubeconfig: /home/centos/.kube/config
+

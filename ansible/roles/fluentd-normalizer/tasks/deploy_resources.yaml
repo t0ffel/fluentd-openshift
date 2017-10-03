@@ -1,0 +1,46 @@
+---
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/fluentd-openshift-XXXXXX
+  register: mktemp
+  changed_when: False
+  check_mode: no
+
+- set_fact:
+    tempdir: "{{ mktemp.stdout }}"
+
+- name: "Go to Fluentd project"
+  command: oc project {{ fluentd_project }}
+
+# Logstash conf.d Configmap
+- name: Create temp directory for configs
+  file:
+    path: '{{ tempdir }}/fluent.conf.d/'
+    state: directory
+    mode: 0755
+
+- name: List the subdirectories with the actual configs
+  local_action: "command ls {{ configs_dir }}"
+  register: subdirs
+
+- debug:
+    var: subdirs
+
+- name: Create configmaps from individual subdirectories with configs
+  include: "{{ role_path }}/tasks/upload_configmap.yaml"
+  with_items: '{{ subdirs.stdout_lines }}'
+  loop_control:
+    loop_var: cm_name
+
+- name: "Copy fluentd deployment to the remote"
+  template:
+    src: fluentd-deployment.yaml.j2
+    dest: "{{ tempdir }}/fluentd-deployment.yaml"
+
+- name: "Create fluentd deployment template"
+  shell: oc apply -f {{ tempdir }}/fluentd-deployment.yaml -n {{ fluentd_project }}
+
+- name: Cleaning up temp dir
+  file: path="{{mktemp.stdout}}" state=absent
+  changed_when: False
+
+

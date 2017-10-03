@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: {{ fluentd_name }}-fluentd
+  labels:
+    app: fluentd
+    fluentd-name: {{ fluentd_name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fluentd
+      fluentd-name: {{ fluentd_name }}
+  template:
+    metadata:
+      labels:
+        app: fluentd
+        fluentd-name: {{ fluentd_name }}
+    spec:
+      containers:
+      - 
+        image: {{ fluentd_image }}
+        imagePullPolicy: Always
+        name: fluentd
+        resources:
+          limits:
+            cpu: 100m
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+{% for cm_name in subdirs.stdout_lines %}
+        - name: {{ cm_name }}-fluent-conf
+          mountPath: /etc/fluent/{{ cm_name }}
+          readOnly: true
+{% endfor %}
+      volumes:
+{% for cm_name in subdirs.stdout_lines %}
+      - name: {{ cm_name }}-fluent-conf
+        configMap:
+          name: {{ fluentd_name }}-{{ cm_name }}-fluent-conf
+{% endfor %}
+  triggers:
+  - type: ConfigChange
+status: {}
