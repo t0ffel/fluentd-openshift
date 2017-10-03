@@ -20,23 +20,27 @@ RUN rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
       ruby-devel \
       libcurl-devel \
       make \
-      iproute && \
+      iproute \
+      epel-release && \
+    yum install -y zeromq3 && \
     yum clean all
 RUN mkdir -p ${HOME} && \
     gem install --no-rdoc --no-ri \
       --conservative --minimal-deps \
       fluentd:${FLUENTD_VERSION} \
       'activesupport:<5' \
-      fluent-plugin-kubernetes_metadata_filter \
+#      fluent-plugin-kubernetes_metadata_filter \
       fluent-plugin-elasticsearch \
-      fluent-plugin-flatten-hash \
-      fluent-plugin-systemd \
+#      fluent-plugin-flatten-hash \
+#      fluent-plugin-systemd \
       systemd-journal \
-      fluent-plugin-rewrite-tag-filter
+      fluent-plugin-rewrite-tag-filter \
+      fluent-plugin-zmq-pub
 
 ADD run.sh ${HOME}/
 
-RUN mkdir -p /etc/fluent/configs.d/
+RUN mkdir -p /etc/fluent/configs.d/ && \
+    ln -s /usr/lib64/libzmq.so.3 /usr/local/lib/libzmq.so
 
 WORKDIR ${HOME}
 USER 0
