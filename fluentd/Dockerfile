@@ -35,7 +35,7 @@ RUN mkdir -p ${HOME} && \
 #      fluent-plugin-systemd \
       systemd-journal \
       fluent-plugin-rewrite-tag-filter \
-      fluent-plugin-zmq-pub
+      fluent-plugin-fedmsg
 
 ADD run.sh ${HOME}/
 
