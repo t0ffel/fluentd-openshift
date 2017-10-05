@@ -19,7 +19,11 @@ spec:
         fluentd-name: {{ fluentd_name }}
     spec:
       containers:
-      - 
+      - env:
+        - name: VERBOSE
+{% if debug == "true" %}
+          value: "true"
+{% endif %}
         image: {{ fluentd_image }}
         imagePullPolicy: Always
         name: fluentd
