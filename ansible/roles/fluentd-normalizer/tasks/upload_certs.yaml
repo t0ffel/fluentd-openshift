@@ -1,0 +1,18 @@
+---
+# This file assumes that certs_dir is defined and contains the certs and
+# private-keys subdirs with respective certificates and private keys.
+
+- name: Set Fluentd certs secret
+  oc_secret:
+    state: present
+    name: '{{ fluentd_name }}-fluentd-certs'
+    namespace: "{{ fluentd_project }}"
+    kubeconfig: '{{ kubeconfig }}'
+    files:
+    - name: mux.key
+      path: "{{ certs_dir }}/mux.key"
+    - name: mux.crt
+      path: "{{ certs_dir }}/mux.crt"
+    - name: mux_shared_key
+      path: "{{ certs_dir }}/mux_shared_key"
+

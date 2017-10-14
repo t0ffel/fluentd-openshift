@@ -1,0 +1,68 @@
+---
+# Create shared key for mux
+- name: Ensure the presence of destination directory
+  file:
+    path: '{{ generated_certs_dir }}'
+    state: directory
+
+- name: Checking for mux_shared_key
+  stat: path="{{generated_certs_dir}}/mux_shared_key"
+  register: component_shared_key_file
+  check_mode: no
+
+- name: Creating shared_key for mux
+  copy: content="{{'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'|random_word(64)}}"
+        dest="{{generated_certs_dir}}/mux_shared_key"
+  check_mode: no
+  when:
+  - not component_shared_key_file.stat.exists
+
+# Create CA
+- name: Checking for ca.key
+  stat: path="{{generated_certs_dir}}/ca.key"
+  register: ca_key_file
+  check_mode: no
+
+- name: Checking for ca.crt
+  stat: path="{{generated_certs_dir}}/ca.crt"
+  register: ca_cert_file
+  check_mode: no
+
+- name: Checking for ca.serial.txt
+  stat: path="{{generated_certs_dir}}/ca.serial.txt"
+  register: ca_serial_file
+  check_mode: no
+
+- name: Generate certificates
+  command: >
+    oc adm --config={{ mktemp.stdout }}/admin.kubeconfig ca create-signer-cert
+    --key={{generated_certs_dir}}/ca.key --cert={{generated_certs_dir}}/ca.crt
+    --serial={{generated_certs_dir}}/ca.serial.txt --name=logging-signer-test
+  check_mode: no
+  when:
+    - not ca_key_file.stat.exists
+    - not ca_cert_file.stat.exists
+    - not ca_serial_file.stat.exists
+
+# Create certs for fluentd mux
+- name: Checking for {{ cert_info.procure_component }}.crt
+  stat: path="{{generated_certs_dir}}/mux.crt"
+  register: component_cert_file
+  check_mode: no
+
+- name: Checking for {{ cert_info.procure_component }}.key
+  stat: path="{{generated_certs_dir}}/mux.key"
+  register: component_key_file
+  check_mode: no
+
+- name: Creating signed server cert and key for mux
+  command: >
+     oc adm --config={{ mktemp.stdout }}/admin.kubeconfig ca create-server-cert
+     --key={{generated_certs_dir}}/mux.key --cert={{generated_certs_dir}}/mux.crt
+     --hostnames={{ cert_hostnames|quote}} --signer-cert={{generated_certs_dir}}/ca.crt --signer-key={{generated_certs_dir}}/ca.key
+     --signer-serial={{generated_certs_dir}}/ca.serial.txt
+  check_mode: no
+  when:
+  - not component_key_file.stat.exists
+  - not component_cert_file.stat.exists
+

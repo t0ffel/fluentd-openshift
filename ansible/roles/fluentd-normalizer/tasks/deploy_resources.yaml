@@ -22,19 +22,49 @@
   local_action: "command ls {{ configs_dir }}"
   register: subdirs
 
-- debug:
-    var: subdirs
-
 - name: Create configmaps from individual subdirectories with configs
   include: "{{ role_path }}/tasks/upload_configmap.yaml"
   with_items: '{{ subdirs.stdout_lines }}'
   loop_control:
     loop_var: cm_name
 
+# Create generate new certificates
+- name: Generate certificates
+  include: "{{ role_path }}/tasks/generate_certs.yaml"
+  vars:
+    generated_certs_dir: '{{ certs_dir }}'
+    cert_hostnames: "{{ fluentd_name }}, {{ fluentd_external_name }}"
+  when: generate_certs is defined
+
+# Create secrets from certs_dir certs
+- name: Use certificates
+  include: "{{ role_path }}/tasks/upload_certs.yaml"
+  when: certs_dir is defined
+
 - name: "Copy fluentd deployment to the remote"
   template:
     src: fluentd-deployment.yaml.j2
     dest: "{{ tempdir }}/fluentd-deployment.yaml"
+
+- name: Set logging-mux service for external communication
+  oc_service:
+    state: present
+    name: "{{ fluentd_name }}"
+    namespace: "{{ fluentd_project }}"
+    selector:
+      app: fluentd
+      fluentd-name: fluentd-temp
+    labels:
+      app: fluentd
+      fluentd-name: fluentd-temp
+    ports:
+    - name: mux-forward
+      port: "{{ fluentd_mux_port }}"
+    external_ips:
+    - "{{ fluentd_external_ip }}"
+    kubeconfig: '{{ kubeconfig }}'
+  when: fluentd_external_name is defined
+
 
 - name: "Create fluentd deployment template"
   shell: oc apply -f {{ tempdir }}/fluentd-deployment.yaml -n {{ fluentd_project }}

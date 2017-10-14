@@ -24,6 +24,10 @@ spec:
 {% if debug == "true" %}
           value: "true"
 {% endif %}
+{% if fluentd_external_name is defined %}
+        - name: FORWARD_LISTEN_HOST
+          value: {{ fluentd_external_name }}
+{% endif %}
         image: {{ fluentd_image }}
         imagePullPolicy: Always
         name: fluentd
@@ -37,12 +41,22 @@ spec:
           mountPath: /etc/fluent/{{ cm_name }}
           readOnly: true
 {% endfor %}
+{% if certs_dir is defined %}
+        - name: fluent-certs
+          mountPath: /etc/fluent/muxkeys
+          readOnly: true
+{% endif %}
       volumes:
 {% for cm_name in subdirs.stdout_lines %}
       - name: {{ cm_name }}-fluent-conf
         configMap:
           name: {{ fluentd_name }}-{{ cm_name }}-fluent-conf
 {% endfor %}
+{% if certs_dir is defined %}
+      - name: fluent-certs
+        secret:
+          secretName: {{ fluentd_name }}-fluentd-certs
+{% endif %}
   triggers:
   - type: ConfigChange
 status: {}
