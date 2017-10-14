@@ -1,0 +1,3 @@
+fluent-plugin-elasticsearch
+fluent-plugin-kafka
+fluent-plugin-secure-forward
