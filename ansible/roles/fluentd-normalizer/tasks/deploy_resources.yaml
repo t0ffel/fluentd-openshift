@@ -33,7 +33,7 @@
   include: "{{ role_path }}/tasks/generate_certs.yaml"
   vars:
     generated_certs_dir: '{{ certs_dir }}'
-    cert_hostnames: "{{ fluentd_name }}, {{ fluentd_external_name }}"
+    cert_hostnames: "{{ fluentd_external_name }},{{ fluentd_name }}"
   when: generate_certs is defined
 
 # Create secrets from certs_dir certs
@@ -53,10 +53,10 @@
     namespace: "{{ fluentd_project }}"
     selector:
       app: fluentd
-      fluentd-name: fluentd-temp
+      fluentd-name: "{{ fluentd_name }}"
     labels:
       app: fluentd
-      fluentd-name: fluentd-temp
+      fluentd-name: "{{ fluentd_name }}"
     ports:
     - name: mux-forward
       port: "{{ fluentd_mux_port }}"

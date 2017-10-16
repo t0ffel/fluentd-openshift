@@ -59,7 +59,7 @@
   command: >
      oc adm --config={{ mktemp.stdout }}/admin.kubeconfig ca create-server-cert
      --key={{generated_certs_dir}}/mux.key --cert={{generated_certs_dir}}/mux.crt
-     --hostnames={{ cert_hostnames|quote}} --signer-cert={{generated_certs_dir}}/ca.crt --signer-key={{generated_certs_dir}}/ca.key
+     --hostnames={{cert_hostnames|quote}} --signer-cert={{generated_certs_dir}}/ca.crt --signer-key={{generated_certs_dir}}/ca.key
      --signer-serial={{generated_certs_dir}}/ca.serial.txt
   check_mode: no
   when:

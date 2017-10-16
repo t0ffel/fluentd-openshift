@@ -1,0 +1,15 @@
+---
+- name: Deploy normalizer
+  hosts: nodes
+  roles:
+  - role: fluentd-normalizer
+    fluentd_project: dh-stage
+    fluentd_name: secureforward-receiver
+    fluentd_image: t0ffel/fluentd23-secure
+    configs_dir: "{{ inventory_dir }}/../configs/normalizer/"
+    kubeconfig: /home/centos/.kube/config
+    generate_certs: true
+    certs_dir: /home/centos/secure-forward/
+    fluentd_external_name: gprfc053.sbu.lab.eng.bos.redhat.com
+    fluentd_external_ip: 10.16.154.156
+#    debug: "true"
