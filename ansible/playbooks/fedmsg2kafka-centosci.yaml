@@ -1,0 +1,12 @@
+---
+- name: Deploy normalizer
+  hosts: nodes
+  roles:
+  - role: fluentd-normalizer
+    fluentd_project: dhkafka
+    fluentd_name: fedmsgingest
+    configs_dir: "{{ inventory_dir }}/../configs/fedmsg2kafka-configs/"
+    kubeconfig: /Users/asherkho-osx/.kube/config
+    fluentd_image: t0ffel/fluentd-ruby23
+    kafka_broker: centoscikafka
+#    debug: "true"
