@@ -1,0 +1,9 @@
+source 'https://rubygems.org'
+
+gem 'fluentd'
+gem 'qpid_proton'
+gem 'fluent-plugin-elasticsearch'
+gem 'systemd-journal'
+gem 'fluent-plugin-rewrite-tag-filter'
+gem 'fluent-plugin-amq'
+gem 'fluent-plugin-kafka'
