@@ -1,3 +1,5 @@
 fluent-plugin-elasticsearch
 fluent-plugin-kafka
 fluent-plugin-secure-forward
+qpid_proton
+fluent-plugin-amq
